@@ -11,3 +11,5 @@ License: The software has been licensed to  NXP Semiconductors USA, Inc.  whose
          Agreement.
 
 Version: V5.48
+
+Special thanks to NXP semiconductors for providing MS-RTOS with a location-independent Segger emWin graphics library.
