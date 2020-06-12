@@ -121,6 +121,8 @@ void GUI_X_Init(void)
         ms_printf("Failed to open /dev/touch0 device!\n");
         abort();
     }
+
+    ms_io_fcntl(gui_touch_fd, F_SETFL, FNONBLOCK);
 }
 
 /*********************************************************************
