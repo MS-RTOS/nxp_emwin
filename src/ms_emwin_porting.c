@@ -48,9 +48,9 @@
 *
 * Global data
 */
-static ms_handle_t gui_lock_handle;
-static ms_handle_t gui_sem_handle;
-static int gui_touch_fd;
+static ms_handle_t ms_emwin_lockid;
+static ms_handle_t ms_emwin_semid;
+static int         ms_emwin_touch_fd;
 
 /*********************************************************************
 *
@@ -78,13 +78,13 @@ void GUI_X_Delay(int ms)
     ms_timeval_t tv;
 
     FD_ZERO(&rfds);
-    FD_SET(gui_touch_fd, &rfds);
+    FD_SET(ms_emwin_touch_fd, &rfds);
 
     tv.tv_sec = ms / 1000;
     tv.tv_usec = (ms % 1000) * 1000;
 
-    if (ms_io_select(gui_touch_fd + 1, &rfds, MS_NULL, MS_NULL, &tv) == 1) {
-        if (ms_io_read(gui_touch_fd, &event, sizeof(event)) == sizeof(event)) {
+    if (ms_io_select(ms_emwin_touch_fd + 1, &rfds, MS_NULL, MS_NULL, &tv) == 1) {
+        if (ms_io_read(ms_emwin_touch_fd, &event, sizeof(event)) == sizeof(event)) {
             if (event.touch_detected > 0) {
                 last_x = event.touch_x[0];
                 last_y = event.touch_y[0];
@@ -116,13 +116,13 @@ void GUI_X_Delay(int ms)
 
 void GUI_X_Init(void)
 {
-    gui_touch_fd = ms_io_open("/dev/touch0", O_RDONLY, 0666);
-    if (gui_touch_fd < 0) {
+    ms_emwin_touch_fd = ms_io_open("/dev/touch0", O_RDONLY, 0666);
+    if (ms_emwin_touch_fd < 0) {
         ms_printf("Failed to open /dev/touch0 device!\n");
         abort();
     }
 
-    ms_io_fcntl(gui_touch_fd, F_SETFL, FNONBLOCK);
+    ms_io_fcntl(ms_emwin_touch_fd, F_SETFL, FNONBLOCK);
 }
 
 /*********************************************************************
@@ -159,18 +159,18 @@ void GUI_X_ExecIdle(void)
 /* Init OS */
 void GUI_X_InitOS(void)
 {
-    (void)ms_mutex_create("emwin_lock", MS_WAIT_TYPE_PRIO, &gui_lock_handle);
-    (void)ms_semb_create("emwin_semb", MS_FALSE, MS_WAIT_TYPE_PRIO, &gui_sem_handle);
+    (void)ms_mutex_create("emwin_lock", MS_WAIT_TYPE_PRIO, &ms_emwin_lockid);
+    (void)ms_semb_create("emwin_semb", MS_FALSE, MS_WAIT_TYPE_PRIO, &ms_emwin_semid);
 }
 
 void GUI_X_Unlock(void)
 {
-    (void)ms_mutex_unlock(gui_lock_handle);
+    (void)ms_mutex_unlock(ms_emwin_lockid);
 }
 
 void GUI_X_Lock(void)
 {
-    (void)ms_mutex_lock(gui_lock_handle, MS_TIMEOUT_FOREVER);
+    (void)ms_mutex_lock(ms_emwin_lockid, MS_TIMEOUT_FOREVER);
 }
 
 /* Get Task handle */
@@ -181,12 +181,12 @@ U32 GUI_X_GetTaskId(void)
 
 void GUI_X_WaitEvent(void)
 {
-    (void)ms_semb_wait(gui_sem_handle, MS_TIMEOUT_FOREVER) ;
+    (void)ms_semb_wait(ms_emwin_semid, MS_TIMEOUT_FOREVER) ;
 }
 
 void GUI_X_SignalEvent(void)
 {
-    (void)ms_semb_post(gui_sem_handle);
+    (void)ms_semb_post(ms_emwin_semid);
 }
 
 /*********************************************************************
