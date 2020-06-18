@@ -379,7 +379,7 @@ void LCD_X_Config(void)
 */
 int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData)
 {
-    int r;
+    int r = 0;
 
     switch (Cmd) {
     case LCD_X_INITCONTROLLER: {
@@ -390,7 +390,7 @@ int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData)
         // to be adapted by the customer...
         //
         // ...
-        return 0;
+        break;
     }
 
     case LCD_X_SETVRAMADDR: {
@@ -401,7 +401,7 @@ int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData)
         LCD_X_SETVRAMADDR_INFO * __unused p;
         p = (LCD_X_SETVRAMADDR_INFO *)pData;
         //...
-        return 0;
+        break;
     }
 
     case LCD_X_SETORG: {
@@ -411,7 +411,7 @@ int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData)
         LCD_X_SETORG_INFO * __unused p;
         p = (LCD_X_SETORG_INFO *)pData;
         //...
-        return 0;
+        break;
     }
 
     case LCD_X_SHOWBUFFER: {
@@ -421,7 +421,7 @@ int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData)
         LCD_X_SHOWBUFFER_INFO * __unused p;
         p = (LCD_X_SHOWBUFFER_INFO *)pData;
         //...
-        return 0;
+        break;
     }
 
     case LCD_X_SETLUTENTRY: {
@@ -431,14 +431,14 @@ int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData)
         LCD_X_SETLUTENTRY_INFO * __unused p;
         p = (LCD_X_SETLUTENTRY_INFO *)pData;
         //...
-        return 0;
+        break;
     }
 
     case LCD_X_ON: {
         //
         // Required if the display controller should support switching on and off
         //
-        return 0;
+        break;
     }
 
     case LCD_X_OFF: {
@@ -446,11 +446,12 @@ int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData)
         // Required if the display controller should support switching on and off
         //
         // ...
-        return 0;
+        break;
     }
 
     default:
         r = -1;
+        break;
     }
 
     return r;
