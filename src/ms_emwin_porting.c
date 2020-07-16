@@ -6,7 +6,7 @@
  *
  * File: ms_emwin_porting.c emWin porting.
  *
- * Author: Jiao.jinxing <jiaojixing@acoinfo.com>
+ * Author: Jiao.jinxing <jiaojinxing@acoinfo.com>
  *
  */
 
