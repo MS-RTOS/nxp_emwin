@@ -85,7 +85,7 @@ void GUI_X_Delay(int ms)
 
     if (ms_io_select(ms_emwin_touch_fd + 1, &rfds, MS_NULL, MS_NULL, &tv) == 1) {
         if (ms_io_read(ms_emwin_touch_fd, &event, sizeof(event)) == sizeof(event)) {
-            if (event.touch_detected > 0) {
+            if ((event.touch_detected > 0) && (event.touch_event_id[0] == MS_TOUCH_EVENT_ID_PRESS_DOWN)) {
                 last_x = event.touch_x[0];
                 last_y = event.touch_y[0];
 
@@ -181,7 +181,7 @@ U32 GUI_X_GetTaskId(void)
 
 void GUI_X_WaitEvent(void)
 {
-    (void)ms_semb_wait(ms_emwin_semid, MS_TIMEOUT_FOREVER) ;
+    (void)ms_semb_wait(ms_emwin_semid, MS_TIMEOUT_FOREVER);
 }
 
 void GUI_X_SignalEvent(void)
