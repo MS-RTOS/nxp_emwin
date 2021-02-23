@@ -44,6 +44,8 @@
 //
 #define NUM_BUFFERS  1 // Number of multiple buffers to be used
 
+#define TOUCH_USE_SELECT 0
+
 /*********************************************************************
 *
 * Global data
@@ -70,6 +72,7 @@ int GUI_X_GetTime(void)
 
 void GUI_X_Delay(int ms)
 {
+#if TOUCH_USE_SELECT
     static int16_t last_x = 0;
     static int16_t last_y = 0;
     ms_touch_event_t event;
@@ -102,6 +105,32 @@ void GUI_X_Delay(int ms)
         pid_state.Layer = 0;
         GUI_TOUCH_StoreStateEx(&pid_state);
     }
+#else
+    static int16_t last_x = 0;
+    static int16_t last_y = 0;
+    ms_touch_event_t event;
+    GUI_PID_STATE pid_state;
+
+    if (ms_io_read(ms_emwin_touch_fd, &event, sizeof(event)) == sizeof(event)) {
+        if ((event.touch_detected > 0) && (event.touch_event_id[0] == MS_TOUCH_EVENT_ID_PRESS_DOWN)) {
+            last_x = event.touch_x[0];
+            last_y = event.touch_y[0];
+
+            pid_state.x = event.touch_x[0];
+            pid_state.y = event.touch_y[0];
+            pid_state.Pressed = 1;
+        } else {
+            pid_state.x = last_x;
+            pid_state.y = last_y;
+            pid_state.Pressed = 0;
+        }
+    }
+
+    pid_state.Layer = 0;
+    GUI_TOUCH_StoreStateEx(&pid_state);
+
+    (void)ms_thread_sleep_ms(ms);
+#endif
 }
 
 /*********************************************************************
@@ -122,7 +151,9 @@ void GUI_X_Init(void)
         abort();
     }
 
+#if TOUCH_USE_SELECT == 0
     ms_io_fcntl(ms_emwin_touch_fd, F_SETFL, FNONBLOCK);
+#endif
 }
 
 /*********************************************************************
